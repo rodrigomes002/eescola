@@ -1,26 +1,26 @@
 // Placeholder para controle de permissões — será implementado junto com autenticação
-import type { SessionUser } from "./auth"
+import type { SessionPayload } from "./session"
 
-export function canManageStudents(user: SessionUser): boolean {
+export function canManageStudents(user: SessionPayload): boolean {
   return user.role === "ADMIN"
 }
 
-export function canManageClasses(user: SessionUser): boolean {
+export function canManageClasses(user: SessionPayload): boolean {
   return user.role === "ADMIN"
 }
 
-export function canManageSubjects(user: SessionUser): boolean {
+export function canManageSubjects(user: SessionPayload): boolean {
   return user.role === "ADMIN"
 }
 
-export function canLaunchAttendance(user: SessionUser): boolean {
+export function canLaunchAttendance(user: SessionPayload): boolean {
   return user.role === "ADMIN" || user.role === "PROFESSOR"
 }
 
-export function canLaunchGrades(user: SessionUser): boolean {
+export function canLaunchGrades(user: SessionPayload): boolean {
   return user.role === "ADMIN" || user.role === "PROFESSOR"
 }
 
-export function canViewBulletin(user: SessionUser): boolean {
+export function canViewBulletin(user: SessionPayload): boolean {
   return user.role === "ADMIN" || user.role === "PROFESSOR"
 }

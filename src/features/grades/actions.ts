@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getSession } from "@/lib/session"
+import { canLaunchGrades } from "@/lib/permissions"
 import { launchGradesSchema, type LaunchGradesInput } from "./schemas"
 
 type ActionResult =
@@ -14,6 +15,9 @@ export async function launchGrades(
 ): Promise<ActionResult> {
   const session = await getSession()
   if (!session) return { success: false, error: "Sessão expirada. Faça login novamente." }
+  if (!canLaunchGrades(session)) {
+    return { success: false, error: "Sem permissão para esta ação." }
+  }
 
   const parsed = launchGradesSchema.safeParse(input)
   if (!parsed.success) {

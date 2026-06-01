@@ -7,17 +7,30 @@ async function main() {
   const passwordHash = await bcrypt.hash("123456", 12)
 
   const user = await db.user.upsert({
-    where: { email: "rodrigomes002@gmail.com" },
+    where: { email: "admin@gmail.com" },
     update: { passwordHash },
     create: {
       name: "Rodrigo",
-      email: "rodrigomes002@gmail.com",
+      email: "admin@gmail.com",
       passwordHash,
       role: "ADMIN",
     },
   })
 
   console.log(`✅ Usuário criado: ${user.email} (${user.role})`)
+
+  const teacher = await db.user.upsert({
+    where: { email: "professor@gmail.com" },
+    update: { passwordHash },
+    create: {
+      name: "Rodrigo",
+      email: "professor@gmail.com",
+      passwordHash,
+      role: "PROFESSOR",
+    },
+  })
+
+  console.log(`✅ Usuário criado: ${teacher.email} (${teacher.role})`)
 }
 
 main()

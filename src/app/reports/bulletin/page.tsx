@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
+import { canViewBulletin } from "@/lib/permissions"
 import AppShell from "@/components/layout/AppShell"
 import {
   getBulletinYears,
@@ -20,9 +21,7 @@ type Props = {
 export default async function BulletinPage({ searchParams }: Props) {
   const session = await getSession()
   if (!session) redirect("/login")
-  if (session.role !== "ADMIN" && session.role !== "PROFESSOR") {
-    redirect("/dashboard")
-  }
+  if (!canViewBulletin(session)) redirect("/dashboard")
 
   const years = await getBulletinYears()
   const selectedYear = (() => {

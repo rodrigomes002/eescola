@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getSession } from "@/lib/session"
+import { canLaunchAttendance } from "@/lib/permissions"
 import { launchAttendanceSchema, type LaunchAttendanceInput } from "./schemas"
 
 type ActionResult =
@@ -14,6 +15,9 @@ export async function launchAttendance(
 ): Promise<ActionResult> {
   const session = await getSession()
   if (!session) return { success: false, error: "Sessão expirada. Faça login novamente." }
+  if (!canLaunchAttendance(session)) {
+    return { success: false, error: "Sem permissão para esta ação." }
+  }
 
   const parsed = launchAttendanceSchema.safeParse(input)
   if (!parsed.success) {

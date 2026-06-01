@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
+import { canLaunchAttendance } from "@/lib/permissions"
 import AppShell from "@/components/layout/AppShell"
 import { getActiveClassRooms } from "@/features/classes/queries"
 import { getAllSubjects } from "@/features/attendance/queries"
@@ -8,6 +9,7 @@ import AttendanceLaunchForm from "@/features/attendance/components/AttendanceLau
 export default async function LaunchAttendancePage() {
   const session = await getSession()
   if (!session) redirect("/login")
+  if (!canLaunchAttendance(session)) redirect("/dashboard")
 
   const [classRooms, subjects] = await Promise.all([
     getActiveClassRooms(),
