@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  PROFESSOR
+  RESPONSAVEL
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ClassRoomStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  JUSTIFIED
+}
+
+enum GradePeriod {
+  BIMESTER_1
+  BIMESTER_2
+  BIMESTER_3
+  BIMESTER_4
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  teacher Teacher?
+}
+
+model Student {
+  id                 String        @id @default(uuid())
+  name               String
+  birthDate          DateTime?
+  registrationNumber String        @unique
+  status             StudentStatus @default(ACTIVE)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  enrollments Enrollment[]
+  attendances Attendance[]
+  grades      Grade[]
+}
+
+model Teacher {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ClassRoom {
+  id         String          @id @default(uuid())
+  name       String
+  schoolYear Int
+  status     ClassRoomStatus @default(ACTIVE)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  enrollments Enrollment[]
+  attendances Attendance[]
+  grades      Grade[]
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendances Attendance[]
+  grades      Grade[]
+}
+
+model Enrollment {
+  id          String   @id @default(uuid())
+  studentId   String
+  classRoomId String
+  createdAt   DateTime @default(now())
+
+  student   Student   @relation(fields: [studentId], references: [id])
+  classRoom ClassRoom @relation(fields: [classRoomId], references: [id])
+
+  @@unique([studentId, classRoomId])
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  studentId   String
+  classRoomId String
+  subjectId   String
+  date        DateTime         @db.Date
+  status      AttendanceStatus
+  createdBy   String
+  createdAt   DateTime         @default(now())
+
+  student   Student   @relation(fields: [studentId], references: [id])
+  classRoom ClassRoom @relation(fields: [classRoomId], references: [id])
+  subject   Subject   @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, classRoomId, subjectId, date])
+}
+
+model Grade {
+  id          String      @id @default(uuid())
+  studentId   String
+  classRoomId String
+  subjectId   String
+  period      GradePeriod
+  value       Decimal     @db.Decimal(4, 2)
+  createdBy   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  student   Student   @relation(fields: [studentId], references: [id])
+  classRoom ClassRoom @relation(fields: [classRoomId], references: [id])
+  subject   Subject   @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, classRoomId, subjectId, period])
+}
